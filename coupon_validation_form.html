@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery Coupon Validation</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        .validate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .validate-btn:active {
+            transform: translateY(0);
+        }
+
+        .validate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success {
+            background: #f0fff4;
+            border: 2px solid #38a169;
+            color: #22543d;
+        }
+
+        .error {
+            background: #fed7d7;
+            border: 2px solid #e53e3e;
+            color: #742a2a;
+        }
+
+        .result-header {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-weight: 400;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔋 Battery Coupon Validation</h1>
+            <p>Enter coupon details to validate and redeem</p>
+        </div>
+
+        <form id="couponForm">
+            <div class="form-group">
+                <label for="coupon_code">Coupon Code <span class="required">*</span></label>
+                <input type="text" id="coupon_code" name="coupon_code" required placeholder="Enter coupon code">
+            </div>
+
+            <div class="form-group">
+                <label for="distributor_id">Distributor ID <span class="required">*</span></label>
+                <input type="text" id="distributor_id" name="distributor_id" required placeholder="Your distributor ID">
+            </div>
+
+            <div class="form-group">
+                <label for="customer_name">Customer Name</label>
+                <input type="text" id="customer_name" name="customer_name" placeholder="Customer's name (optional)">
+            </div>
+
+            <div class="form-group">
+                <label for="customer_email">Customer Email</label>
+                <input type="email" id="customer_email" name="customer_email" placeholder="customer@email.com (optional)">
+            </div>
+
+            <button type="submit" class="validate-btn" id="submitBtn">
+                <span id="btnText">Validate Coupon</span>
+                <span id="btnLoading" class="loading" style="display: none;"></span>
+            </button>
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // REPLACE THIS URL with your actual n8n webhook URL
+        const WEBHOOK_URL = 'https://mneimneh.app.n8n.cloud/webhook-test/validate-coupon';
+
+        document.getElementById('couponForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+            const resultDiv = document.getElementById('result');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
+            resultDiv.style.display = 'none';
+            
+            // Get form data
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                // Show result
+                resultDiv.style.display = 'block';
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <div class="result-header">
+                            ✅ Coupon Valid & Redeemed!
+                        </div>
+                        <div class="result-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Coupon Code:</span>
+                                <span class="detail-value">${result.coupon_code}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Discount:</span>
+                                <span class="detail-value">${result.discount_description}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Distributor:</span>
+                                <span class="detail-value">${result.distributor_id}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Clear form on success
+                    e.target.reset();
+                } else {
+                    resultDiv.className = 'result error';
+                    let errorMessage = result.message || 'Coupon validation failed';
+                    
+                    // Customize error messages
+                    if (result.error === 'COUPON_NOT_FOUND') {
+                        errorMessage = '❌ This coupon code does not exist';
+                    } else if (result.error === 'COUPON_NOT_ISSUED') {
+                        errorMessage = '⏳ This coupon has not been issued to a customer yet';
+                    } else if (result.error === 'COUPON_EXPIRED') {
+                        errorMessage = '⏰ This coupon has expired';
+                    } else if (result.error === 'COUPON_ALREADY_USED') {
+                        errorMessage = '🔒 This coupon has already been redeemed';
+                    }
+                    
+                    resultDiv.innerHTML = `
+                        <div class="result-header">
+                            ${errorMessage}
+                        </div>
+                        <div class="result-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Coupon Code:</span>
+                                <span class="detail-value">${result.coupon_code}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <div class="result-header">
+                        🚫 Connection Error
+                    </div>
+                    <p>Unable to validate coupon. Please check your connection and try again.</p>
+                `;
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            }
+        });
+
+        // Auto-uppercase coupon codes
+        document.getElementById('coupon_code').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    </script>
+</body>
+</html>
